@@ -13,6 +13,7 @@
             "Vendimia\\Controller\\": "src/Controller/",
             "Vendimia\\Core\\": "src/Core/",
             "Vendimia\\Exception\\": "src/Exception/"
+        }
     },
     "authors": [
         {
