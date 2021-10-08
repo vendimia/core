@@ -1,19 +1,22 @@
 <?php
-namespace Vendimia\Core;
+namespace Vendimia\Core\RequestParameter;
 
 use Vendimia\Http\Request;
 use Vendimia\ObjectManager\AttributeParameterAbstract;
 
 /**
- * Fetchs an argument from the request parsed body
+ * Fetchs a parameter from the request parsed body
  */
-class BodyArg extends AttributeParameterAbstract
+class BodyParam extends AttributeParameterAbstract
 {
     public function __construct(
         private Request $request,
+        string $name = null,
     )
     {
-
+        if (!is_null($name)) {
+            $this->name = $name;
+        }
     }
 
     public function getValue()
