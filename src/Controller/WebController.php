@@ -44,6 +44,6 @@ abstract class WebController
                 return $response;
             }
         }
-        return $this->view->render();
+        return $this->view->renderResponse();
     }
 }
