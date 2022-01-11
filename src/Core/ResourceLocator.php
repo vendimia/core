@@ -49,17 +49,18 @@ class ResourceLocator implements ResourceLocatorInterface
     /**
      * Search for a resource file in several paths.
      *
-     * $filename can have 3 forms:
+     * `$filename` can have 3 forms:
      *
      * * Just `filename`, will search in the active module and base
      *   paths,
-     * * `module:filename`, will search in `module` and base paths.
-     * * `::filename`, only searched in `base` directory
+     * * `module:filename`, will search in `module` path.
+     * * `::filename`, will only search in `base` path
      */
     public function find(
         $filename,
         ?string $type = null,
         string|array|null $ext = null,
+        bool $return_relative_resource_name = false,
     ): ?string
     {
         if (is_null($type)) {
@@ -71,7 +72,14 @@ class ResourceLocator implements ResourceLocatorInterface
 
         $active_module = $this->default_module ?? $this->project->module;
 
+        // Buscar solo en base
         $only_base = false;
+
+        // No buscar en base
+        $no_base = false;
+
+        // Removemos puntos y slashes
+        $filename = ltrim($filename, '.\\/');
 
         if (str_starts_with($filename, '::')) {
             // Solo nos quedamos con base
@@ -84,6 +92,7 @@ class ResourceLocator implements ResourceLocatorInterface
             if ($colon_pos !== false) {
                 $active_module = substr($filename, 0, $colon_pos);
                 $filename = substr($filename, ++$colon_pos);
+                $no_base = true;
             }
         }
 
@@ -92,27 +101,34 @@ class ResourceLocator implements ResourceLocatorInterface
             $ext = [$ext];
         }
 
+        $search_paths = [];
+
         // Empezamos sólo con 'base'
-        $search_paths = [
-            [
-                PROJECT_PATH,
-                'base',
-                self::TYPE_PATH[$type],
-                $this->project->controller,
-                $filename
-            ],
-            [
-                PROJECT_PATH,
-                'base',
-                self::TYPE_PATH[$type],
-                $filename
-            ],
-        ];
+        if (!$no_base) {
+            $search_paths = [
+                [
+                    [$this->project->controller, $filename], // Relative file path
+                    PROJECT_PATH,
+                    'base',
+                    self::TYPE_PATH[$type],
+                    $this->project->controller,
+                    $filename
+                ],
+                [
+                    [$filename],    // Relative file path
+                    PROJECT_PATH,
+                    'base',
+                    self::TYPE_PATH[$type],
+                    $filename
+                ],
+            ];
+        }
 
         // Si no solo buscamos en la base, preponemos los paths del módulo
         if (!$only_base) {
             $search_paths = [
                 [
+                    [$this->project->controller, $filename], // Relative file path
                     PROJECT_PATH,
                     'modules',
                     $active_module,
@@ -121,6 +137,7 @@ class ResourceLocator implements ResourceLocatorInterface
                     $filename
                 ],
                 [
+                    [$filename],    // Relative file path
                     PROJECT_PATH,
                     'modules',
                     $active_module,
@@ -135,12 +152,19 @@ class ResourceLocator implements ResourceLocatorInterface
         $this->last_searched_paths = [];
 
         foreach ($search_paths as $path) {
+            // Sacamos la ruta relativa
+            $relative_path = array_shift($path);
+
             foreach ($ext as $e) {
+
                 $target = join(DIRECTORY_SEPARATOR, array_filter($path));
                 $target .= '.' . $e;
                 $this->last_searched_paths[] = $target;
 
                 if (file_exists($target)) {
+                    if ($return_relative_resource_name) {
+                        return join(DIRECTORY_SEPARATOR, $relative_path);
+                    }
                     return $target;
                 }
             }
