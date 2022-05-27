@@ -88,7 +88,7 @@ class Routing implements MiddlewareInterface
             $response = $this->object->call($route->target);
         } elseif ($route->target_type == Rule::TARGET_VIEW) {
             $view = $this->object->new(View::class);
-
+            $view->setLayout('default');
             $view->setSource($route->target);
 
             $response = $view->renderResponse();
