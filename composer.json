@@ -8,6 +8,7 @@
         "vendimia/interfaces": "*",
         "vendimia/session": "*",
         "vendimia/routing": "*",
+        "vendimia/view": "*",
         "psr/http-server-middleware": "^1.0",
         "psr/http-server-handler": "^1.0",
         "vendimia/object-manager": "^0.1.2"

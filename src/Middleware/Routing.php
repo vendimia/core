@@ -10,8 +10,9 @@ use Vendimia\Routing\{Manager, Rule};
 use Vendimia\Core\ProjectInfo;
 use Vendimia\ObjectManager\ObjectManager;
 use Vendimia\Interface\Path\ResourceLocatorInterface;
+use Vendimia\View\View;
 
-class Routing extends MiddlewareInterface
+class Routing implements MiddlewareInterface
 {
     public function __construct(
         private ObjectManager $object,
@@ -85,6 +86,12 @@ class Routing extends MiddlewareInterface
 
         } elseif ($route->target_type == Rule::TARGET_CALLABLE) {
             $response = $this->object->call($route->target);
+        } elseif ($route->target_type == Rule::TARGET_VIEW) {
+            $view = $this->object->new(View::class);
+
+            $view->setSource($route->target);
+
+            $response = $view->renderResponse();
         }
 
         return $response;
