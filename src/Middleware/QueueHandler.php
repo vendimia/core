@@ -1,5 +1,5 @@
 <?php
-namespace Vendimia\Core;
+namespace Vendimia\Middleware;
 
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -7,7 +7,7 @@ use Psr\Http\Server\RequestHandlerInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Vendimia\ObjectManager\ObjectManager;
 
-class MiddlewareQueueHandler implements RequestHandlerInterface
+class QueueHandler implements RequestHandlerInterface
 {
     private $queue = [];
     private $fallbackHandler;

@@ -15,7 +15,8 @@
         "psr-4": {
             "Vendimia\\Controller\\": "src/Controller/",
             "Vendimia\\Core\\": "src/Core/",
-            "Vendimia\\Exception\\": "src/Exception/"
+            "Vendimia\\Exception\\": "src/Exception/",
+            "Vendimia\\Middleware\\": "src/Middleware/"
         }
     },
     "authors": [
