@@ -4,22 +4,25 @@ namespace Vendimia\Core\AssetManager;
 use Vendimia\Controller\WebController;
 use Vendimia\Http\Response;
 use Vendimia\Exception\ResourceNotFoundException;
+use Vendimia\Routing\MethodRoute as Route;
+
 use InvalidArgumentException;
 
 use const Vendimia\DEBUG;
 
-/** 
+/**
  * Public asset manager.
- * 
- * This controller will preprocess CSS and JS 
+ *
+ * This controller will preprocess CSS and JS
  */
 class Controller extends WebController
 {
+    #[Route\Get('css/{*code}')]
     public function css($code)
     {
         [$module, $sources] = explode(':', $code);
         $sources = explode(',', $sources);
-        
+
         $model = $this->object->new(
             Model\Css::class,
             module: $module,
@@ -45,6 +48,7 @@ class Controller extends WebController
         return $response;
     }
 
+    #[Route\Get('js/{*code}')]
     public function js($code, Model\Js $js_model)
     {
         [$module, $sources] = explode(':', $code);
@@ -58,5 +62,5 @@ class Controller extends WebController
             ->withHeader('Content-Type', 'text/javascript');
 
         return $response;
-   }
+    }
 }
