@@ -59,6 +59,8 @@ class Routing implements MiddlewareInterface
             exit;
         }
 
+        // Grabamos la ruta 'matched'
+        $this->object->save($route);
 
         if ($route->target_type == Rule::TARGET_CONTROLLER) {
 
