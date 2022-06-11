@@ -11,6 +11,9 @@ use LogicException;
 
 abstract class JsonController
 {
+    /** If not null, HTTP response code, or array with [code, reason] */
+    private $response_code = null;
+
     public function __construct(
         protected ObjectManager $object,
         protected Request $request,
@@ -20,6 +23,18 @@ abstract class JsonController
     )
     {
 
+    }
+
+    /**
+     * Sets the response HTTP code and reason
+     */
+    public function setResponseCode($code, $reason = null)
+    {
+        if (is_null($reason)) {
+            $this->response_code = $code;
+        } else {
+            $this->response_code = [$code, $reason];
+        }
     }
 
     public function execute($method, ...$args): Response
@@ -37,10 +52,19 @@ abstract class JsonController
 
         $payload = json_encode($response);
 
-
-        return Response::fromString($payload)
+        $response = Response::fromString($payload)
             ->withHeader('Content-Type', 'application/json')
         ;
+
+        if ($this->response_code) {
+            if (is_array($this->response_code)) {
+                $response = $response->withStatus(...$this->response_code);
+            } else {
+                $response = $response->withStatus($this->response_code);
+            }
+        }
+
+        return $response;
     }
 
 }
