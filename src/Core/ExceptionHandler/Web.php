@@ -14,42 +14,8 @@ use Vendimia\Routing\MatchedRoute;
  *
  * This must not be used in production
  */
-class Web
+class Web extends ExceptionHandlerAbstract
 {
-    /**
-     * Process and return method arguments from a trace
-     */
-    private static function processTraceArgs($args): string
-    {
-        // Si no es iterable, lo retornamos de vuelta
-        if (!is_iterable($args)) {
-            return (string)$args;
-        }
-
-        $result = [];
-        foreach ($args as $param => $arg) {
-            $processed_arg = '';
-            if (is_string($param)) {
-                $processed_arg = "{$param}: ";
-            }
-            if (is_null($arg)) {
-                $processed_arg .= 'NULL';
-            } elseif (is_array($arg)) {
-                $processed_arg .= '[' . self::processTraceArgs($arg) . ']';
-            } elseif (is_object($arg)) {
-                $processed_arg .= get_class($arg);// . ' ' . $short_name;
-            } elseif (is_string($arg)) {
-                $processed_arg .= '"' . $arg . '"';
-            } else {
-                $processed_arg .= $arg;
-            }
-
-            $result[] = $processed_arg;
-        }
-
-        return join(', ', $result);
-    }
-
     /**
      * Retrive a few lines of a source file
      */
@@ -82,7 +48,7 @@ class Web
     /**
      * Renders a simple HTML with info of the throwable
      */
-    public static function handle(Throwable $throwable): noreturn
+    public static function handle(Throwable $throwable): never
     {
         $object = ObjectManager::retrieve();
         $throwable_class = get_class($throwable);
@@ -119,6 +85,7 @@ class Web
         function expand(id) {document.querySelector(`table#code-\${id}`).style.display = 'block'; toggle_links(id)}
         function collapse(id) {document.querySelector(`table#code-\${id}`).style.display = 'none'; toggle_links(id)}
         </script>
+        <title>{$throwable_class}: {$throwable->getMessage()}</title>
         </head>
         <body>
         <header>
@@ -197,7 +164,7 @@ class Web
             $html .= '<h2>Extra information</h2><table class="information">';
 
             foreach ($throwable->getExtra() as $key => $value) {
-                $value = self::processTraceArgs($value);
+                $value = self::processTraceArgs($value, separator: '<br />');
                 $html .=  "<tr><th>{$key}:</th><td>{$value}</td>";
             }
 
@@ -211,7 +178,7 @@ class Web
         $query_params = self::processTraceArgs($request->query_params);
         $parsed_body = self::processTraceArgs($request->parsed_body);
 
-        $html .= "<tr><th>Method and URL:</th><td>{$request->getMethod()} {$request->getUri()->getPath()}</td>";
+        $html .= "<tr><th>Method and URL:</th><td>{$request->getMethod()} {$request->getUri()?->getPath()}</td>";
         $html .= "<tr><th>Matched rule:</th><td>{$matched_rule}</td>";
         $html .= "<tr><th>Query parameters:</th><td>{$query_params}</td>";
         $html .= "<tr><th>Parsed body:</th><td>{$parsed_body}</td>";
