@@ -8,13 +8,13 @@ use Vendimia\Exception\ResourceNotFoundException;
 class Js
 {
     private $sources = [];
-    
+
     public function __construct (
         private ProjectInfo $project_info,
         private ResourceLocatorInterface $resource_locator,
     )
     {
-        
+
     }
 
     public function setSources($sources, $module = null)
@@ -24,7 +24,7 @@ class Js
 
     }
 
-    /** 
+    /**
      * Render the JS group
      */
     public function render(): string
@@ -41,13 +41,11 @@ class Js
             if (is_null($file_path)) {
                 throw new ResourceNotFoundException(
                     "JavaScript source '{$source}' not found",
-                    [
-                        'Paths' => $this->resource_locator->getLastSearchedPaths(),
-                    ],
+                    searched_paths: $this->resource_locator->getLastSearchedPaths(),
                 );
             }
-            
-            // TODO: Crear (o usar) un parser de JavaScript para 
+
+            // TODO: Crear (o usar) un parser de JavaScript para
             // minimizarlo
             $return .= file_get_contents($file_path);
 
