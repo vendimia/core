@@ -28,6 +28,10 @@ class Json extends ExceptionHandlerAbstract
             'traceback' => $throwable->getTrace(),
         ];
 
+        if ($throwable instanceof VendimiaException) {
+            $payload['extra'] = $throwable->getExtra();
+        }
+
         Response::Json($payload, code: 500, reason: $throwable->getMessage())
             ->send();
         exit;
