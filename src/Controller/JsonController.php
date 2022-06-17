@@ -7,6 +7,7 @@ use Vendimia\Core\ProjectInfo;
 use Vendimia\Http\Request;
 use Vendimia\Http\Response;
 use Vendimia\Session\SessionManager;
+use Vendimia\Logger\Logger;
 use LogicException;
 
 abstract class JsonController
@@ -20,6 +21,7 @@ abstract class JsonController
         protected Response $response,
         protected ProjectInfo $project_info,
         protected SessionManager $session,
+        protected Logger $logger,
     )
     {
 

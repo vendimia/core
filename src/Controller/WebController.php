@@ -10,6 +10,7 @@ use Vendimia\Http\Response;
 use Vendimia\View\View;
 use Vendimia\View\AlertMessages;
 use Vendimia\Session\SessionManager;
+use Vendimia\Logger\Logger;
 
 abstract class WebController
 {
@@ -23,6 +24,7 @@ abstract class WebController
         protected ResourceLocator $resource_locator,
         protected AlertMessages $messages,
         protected SessionManager $session,
+        protected Logger $logger,
     )
     {
         // Creamos la vista, y le colocamos valores por defecto
