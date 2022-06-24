@@ -1,7 +1,8 @@
 <?php
+
 namespace Vendimia\Controller;
 
-use Vendimia\Interface\ControllerInterface;
+use Vendimia\Interface\Controller\ControllerInterface;
 use Vendimia\ObjectManager\ObjectManager;
 use Vendimia\Core\ProjectInfo;
 use Vendimia\Http\Request;
@@ -10,7 +11,7 @@ use Vendimia\Session\SessionManager;
 use Vendimia\Logger\Logger;
 use LogicException;
 
-abstract class JsonController
+abstract class JsonController implements ControllerInterface
 {
     /** If not null, HTTP response code, or array with [code, reason] */
     private $response_code = null;

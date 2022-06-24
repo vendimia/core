@@ -1,7 +1,8 @@
 <?php
+
 namespace Vendimia\Controller;
 
-use Vendimia\Interface\ControllerInterface;
+use Vendimia\Interface\Controller\ControllerInterface;
 use Vendimia\ObjectManager\ObjectManager;
 use Vendimia\Core\ProjectInfo;
 use Vendimia\Core\ResourceLocator;
@@ -12,7 +13,7 @@ use Vendimia\View\AlertMessages;
 use Vendimia\Session\SessionManager;
 use Vendimia\Logger\Logger;
 
-abstract class WebController
+abstract class WebController implements ControllerInterface
 {
     protected View $view;
 
