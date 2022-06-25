@@ -11,9 +11,9 @@
         "vendimia/view": "*",
         "psr/http-server-middleware": "^1.0",
         "psr/http-server-handler": "^1.0",
-        "vendimia/object-manager": "^0.1.2",
-        "vendimia/madss": "^0.1.3",
-        "vendimia/logger": "^0.0.2"
+        "vendimia/object-manager": "*",
+        "vendimia/madss": "*",
+        "vendimia/logger": "*"
     },
     "autoload": {
         "psr-4": {
