@@ -11,6 +11,9 @@ use Vendimia\Core\ProjectInfo;
 use Vendimia\ObjectManager\ObjectManager;
 use Vendimia\Interface\Path\ResourceLocatorInterface;
 use Vendimia\View\View;
+use Vendimia\Interface\Controller\ControllerInterface;
+
+use RuntimeException;
 
 class Routing implements MiddlewareInterface
 {
@@ -78,6 +81,11 @@ class Routing implements MiddlewareInterface
 
             // Ejecutamos el controller
             $controller = $this->object->new($route->target[0]);
+
+            if (!$controller instanceof ControllerInterface) {
+                $class = $controller::class;
+                throw new RuntimeException("{$class} class does not implements ControllerInterface interface.");
+            }
 
             // Si tiene un método 'initialize', lo ejecutamos
             if(method_exists($controller, 'initialize')) {
