@@ -32,7 +32,10 @@ class Json extends ExceptionHandlerAbstract
             $payload['extra'] = $throwable->getExtra();
         }
 
-        Response::Json($payload, code: 500, reason: $throwable->getMessage())
+        // Evitamos que haya \n
+        $reason = explode("\n", $throwable->getMessage())[0];
+
+        Response::Json($payload, code: 500, reason: $reason)
             ->send();
         exit;
     }
