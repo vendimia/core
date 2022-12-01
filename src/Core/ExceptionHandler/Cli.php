@@ -12,11 +12,11 @@ use const Vendimia\PROJECT_PATH;
 use const STDERR;
 
 /**
- * Sends detailed information abount an exception to STDERR
+ * Sends information about an exception to STDERR
  */
 class Cli extends ExceptionHandlerAbstract
 {
-    public static function handle(Throwable $throwable): never
+    public function handle(Throwable $throwable): never
     {
         if (defined("STDERR")) {
             $console = new Console(STDERR);

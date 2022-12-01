@@ -48,7 +48,7 @@ class Web extends ExceptionHandlerAbstract
     /**
      * Renders a simple HTML with info of the throwable
      */
-    public static function handle(Throwable $throwable): never
+    public function handle(Throwable $throwable): never
     {
         $object = ObjectManager::retrieve();
         $throwable_class = get_class($throwable);

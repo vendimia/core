@@ -2,12 +2,14 @@
 
 namespace Vendimia\Core\ExceptionHandler;
 
+use Throwable;
+
 abstract class ExceptionHandlerAbstract
 {
     /**
      * Process and return method arguments from a trace
      */
-    protected static function processTraceArgs($args, $separator = ', '): string
+    protected function processTraceArgs($args, $separator = ', '): string
     {
         // Si no es iterable, lo retornamos de vuelta
         if (!is_iterable($args)) {
@@ -37,4 +39,6 @@ abstract class ExceptionHandlerAbstract
 
         return join($separator, $result);
     }
+
+    abstract public function handle(Throwable $throwable): never;
 }

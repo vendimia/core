@@ -46,7 +46,7 @@ abstract class JsonController implements ControllerInterface
 
         if (!$response instanceof Response &&
             !is_array($response)) {
-            throw new LogicException("JsonController method '$method' must return an array, o a Vendimia\\Response object, got " . gettype($response) . " instead");
+            throw new LogicException("JsonController method '$method' must return an array, or a Vendimia\\Response object, got " . gettype($response) . " instead");
         }
 
         if ($response instanceof Response) {
