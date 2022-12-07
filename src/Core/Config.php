@@ -58,7 +58,7 @@ class Config implements ArrayAccess
             ENVIRONMENT . '.php';
 
         if (file_exists($alt_source)) {
-            $target_storage = array_merge_recursive (
+            $target_storage = array_merge(
                 $target_storage,
                 require $alt_source,
             );
