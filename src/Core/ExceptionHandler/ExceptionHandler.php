@@ -33,7 +33,7 @@ class ExceptionHandler
 
     public function __invoke(Throwable $throwable)
     {
-        $this->logger->alert($throwable->getMessage(), [
+        $this->logger?->alert($throwable->getMessage(), [
             "exception" => $throwable
         ]);
         $this->handler->handle($throwable);
