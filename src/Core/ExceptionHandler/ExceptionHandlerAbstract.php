@@ -34,7 +34,7 @@ abstract class ExceptionHandlerAbstract
                 $processed_arg .= $arg;
             }
 
-            $result[] = $processed_arg;
+            $result[] = htmlspecialchars($processed_arg);
         }
 
         return join($separator, $result);
