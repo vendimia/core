@@ -160,7 +160,10 @@ class Web extends ExceptionHandlerAbstract
         <section>
         EOF;
 
+        $http_code = 500;
         if ($throwable instanceof VendimiaException) {
+            $http_code = $throwable->getExtra()['__HTTP_CODE'] ?? 500;
+
             $html .= '<h2>Extra information</h2><table class="information">';
 
             foreach ($throwable->getExtra() as $key => $value) {
@@ -190,7 +193,7 @@ class Web extends ExceptionHandlerAbstract
         </body></html>
         EOF;
 
-        http_response_code(500);
+        http_response_code($http_code);
         echo $html;
         exit;
     }
