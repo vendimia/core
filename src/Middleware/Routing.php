@@ -13,6 +13,7 @@ use Vendimia\Interface\Path\ResourceLocatorInterface;
 use Vendimia\View\View;
 use Vendimia\Interface\Controller\ControllerInterface;
 
+use Vendimia\Exception\ResourceNotFoundException;
 use RuntimeException;
 
 class Routing implements MiddlewareInterface
@@ -45,20 +46,31 @@ class Routing implements MiddlewareInterface
         $route = $route_manager->match($request);
 
         if (is_null($route)) {
-            echo "<h1>404</h1>";
-            // Renderizamos un 404
-
-            echo "<pre>";
-            echo $request->getMethod() . ' ' .  $request->getUri()->getPath() . "\n\n";
-
+            $rules = [];
             foreach ($route_manager->getRules() as $rule) {
                 $parts = [
-                    join(',', $rule['methods']),
-                    "'" . $rule['path'] . "'",
-                    is_array($rule['target']) ? join('::', $rule['target']) : '??',
+                    'methods' => join(',', $rule['methods']),
+                    'path' => $rule['path'],
+                    'target' => is_array($rule['target']) ? join('::', $rule['target']) : '??',
                 ];
-                echo join(' ', $parts) . PHP_EOL;
+                $rules[] = $parts;
             }
+            $target = $request->getMethod() . ' ' .  $request->getUri()->getPath();
+
+            // TODO: Es SUPER NECESARIO una mejor forma de manejar 404s
+            if (str_contains($request->getHeaderLine('accept'), 'application/json') ||
+                $request->getHeaderLine('content-type') == 'application/json') {
+                throw new ResourceNotFoundException('',
+                    target: $target,
+                    __HTTP_CODE: 404,
+                );
+            } else {
+                $this->object->new(View::class)->renderHttpStatus(404, [
+                    'target' => $target,
+                    'rules' => $rules,
+                ]);
+            }
+
             exit;
         }
 
