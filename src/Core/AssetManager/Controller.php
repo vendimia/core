@@ -20,7 +20,7 @@ class Controller extends WebController
     #[Route\Get('css/{*code}')]
     public function css($code)
     {
-        [$module, $sources] = explode(':', $code);
+        [$module, $sources] = explode(':', $code, 2);
         $sources = explode(',', $sources);
 
         $model = $this->object->new(
@@ -51,7 +51,7 @@ class Controller extends WebController
     #[Route\Get('js/{*code}')]
     public function js($code, Model\Js $js_model)
     {
-        [$module, $sources] = explode(':', $code);
+        [$module, $sources] = explode(':', $code, 2);
         $sources = explode(',', $sources);
 
         $js_model->setSources($sources, $module);
