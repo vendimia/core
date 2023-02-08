@@ -48,12 +48,11 @@ class Routing implements MiddlewareInterface
         if (is_null($route)) {
             $rules = [];
             foreach ($route_manager->getRules() as $rule) {
-                $parts = [
+                $rules[] = [
                     'methods' => join(',', $rule['methods']),
                     'path' => $rule['path'],
                     'target' => is_array($rule['target']) ? join('::', $rule['target']) : '??',
                 ];
-                $rules[] = $parts;
             }
             $target = $request->getMethod() . ' ' .  $request->getUri()->getPath();
 
@@ -62,6 +61,7 @@ class Routing implements MiddlewareInterface
                 $request->getHeaderLine('content-type') == 'application/json') {
                 throw new ResourceNotFoundException('',
                     target: $target,
+                    rules: $rules,
                     __HTTP_CODE: 404,
                 );
             } else {
