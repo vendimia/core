@@ -8,6 +8,9 @@ use Vendimia\Exception\VendimiaException;
 use Vendimia\ObjectManager\ObjectManager;
 use Vendimia\Http\Response;
 
+use const Vendimia\DEBUG;
+
+
 /**
  * Shows detailed information about an exception using JSON.
  */
@@ -18,6 +21,19 @@ class Json extends ExceptionHandlerAbstract
      */
     public function handle(Throwable $throwable): never
     {
+        $http_code = 500;
+        if ($throwable instanceof VendimiaException) {
+            $payload['extra'] = $throwable->getExtra();
+            $http_code = $payload['extra']['__HTTP_CODE'] ?? 500;
+        }
+
+        // Si no estamos en debug, simplemente enviamos el código vacío
+        if (!DEBUG) {
+            Response::Json([], code: $http_code)
+                ->send();
+            exit;
+        }
+
         $object = ObjectManager::retrieve();
 
         $payload = [
@@ -28,11 +44,7 @@ class Json extends ExceptionHandlerAbstract
             'traceback' => $throwable->getTrace(),
         ];
 
-        $http_code = 500;
-        if ($throwable instanceof VendimiaException) {
-            $payload['extra'] = $throwable->getExtra();
-            $http_code = $payload['extra']['__HTTP_CODE'] ?? 500;
-        }
+
 
         // Evitamos que haya \n
         $reason = explode("\n", $throwable->getMessage())[0];

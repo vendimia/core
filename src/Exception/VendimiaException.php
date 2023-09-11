@@ -7,7 +7,7 @@ class VendimiaException extends Exception
 {
     private $extra = [];
 
-    public function __construct($message = '',...$extra)
+    public function __construct($message = '', ...$extra)
     {
         parent::__construct($message);
         $this->extra = $extra;

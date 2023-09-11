@@ -4,10 +4,14 @@ namespace Vendimia\Core\ExceptionHandler;
 
 use Throwable;
 use ReflectionClass;
+
 use Vendimia\Exception\VendimiaException;
 use Vendimia\ObjectManager\ObjectManager;
 use Vendimia\Http\Request;
 use Vendimia\Routing\MatchedRoute;
+use Vendimia\View\View;
+
+use const Vendimia\DEBUG;
 
 /**
  * Shows detailed information about an exception using HTML.
@@ -51,7 +55,17 @@ class Web extends ExceptionHandlerAbstract
     public function handle(Throwable $throwable): never
     {
         $object = ObjectManager::retrieve();
+
         $throwable_class = get_class($throwable);
+
+        if (!DEBUG) {
+            // Si no estamos en debug, solo incluimos el fichero 500.php
+
+            $object->new(View::class)->renderHttpStatus(500, [
+            ]);
+
+        }
+
 
         // No usamos vistas, en caso sean excepciones en Vendimia mismo
         $html = <<<EOF
