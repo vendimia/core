@@ -23,7 +23,6 @@ class Json extends ExceptionHandlerAbstract
     {
         $http_code = 500;
         if ($throwable instanceof VendimiaException) {
-            $payload['extra'] = $throwable->getExtra();
             $http_code = $payload['extra']['__HTTP_CODE'] ?? 500;
         }
 
@@ -44,11 +43,12 @@ class Json extends ExceptionHandlerAbstract
             'traceback' => $throwable->getTrace(),
         ];
 
-
+        if ($throwable instanceof VendimiaException) {
+            $payload['extra'] = $throwable->getExtra();
+        }
 
         // Evitamos que haya \n
         $reason = explode("\n", $throwable->getMessage())[0];
-
 
         Response::Json($payload, code: $http_code, reason: $reason)
             ->send();
