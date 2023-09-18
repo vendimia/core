@@ -59,7 +59,7 @@ class Routing implements MiddlewareInterface
             // TODO: Es SUPER NECESARIO una mejor forma de manejar 404s
             if (str_contains($request->getHeaderLine('accept'), 'application/json') ||
                 $request->getHeaderLine('content-type') == 'application/json') {
-                throw new ResourceNotFoundException('',
+                throw new ResourceNotFoundException('Resource not found: ' . $target,
                     target: $target,
                     rules: $rules,
                     __HTTP_CODE: 404,
