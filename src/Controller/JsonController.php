@@ -42,7 +42,15 @@ abstract class JsonController implements ControllerInterface
 
     public function execute($method, ...$args): Response
     {
-        $response = $this->object->callMethod($this, $method, ...$args);
+        try {
+            $response = $this->object->callMethod($this, $method, ...$args);
+        } catch (LogicException $e) {
+            // Si falla el ObjectManager, añadimos más información
+            throw new LogicException(
+                "Failed to execute " . get_class($this) . "::{$method}",
+                previous: $e,
+            );
+        }
 
         if (!$response instanceof Response &&
             !is_array($response)) {

@@ -16,6 +16,32 @@ use const Vendimia\DEBUG;
  */
 class Json extends ExceptionHandlerAbstract
 {
+
+    /**
+     * Gathers information about a Throwable
+     */
+    public function getThrowableInformation(Throwable $throwable): array
+    {
+        $info = [
+            'exception' => get_class($throwable),
+            'message' => $throwable->getMessage(),
+            'file' => $throwable->getFile(),
+            'line' => $throwable->getLine(),
+            'traceback' => $throwable->getTrace(),
+        ];
+
+        if ($throwable instanceof VendimiaException) {
+            $payload['extra'] = $throwable->getExtra();
+        }
+
+        // Si hay un previous, lo añadimos
+        if ($previous = $throwable->getPrevious()) {
+            $info['previous'] = $this->getThrowableInformation($previous);
+        }
+
+        return $info;
+    }
+
     /**
      * Renders a simple HTML with info of the throwable
      */
@@ -35,17 +61,7 @@ class Json extends ExceptionHandlerAbstract
 
         $object = ObjectManager::retrieve();
 
-        $payload = [
-            'exception' => get_class($throwable),
-            'message' => $throwable->getMessage(),
-            'file' => $throwable->getFile(),
-            'line' => $throwable->getLine(),
-            'traceback' => $throwable->getTrace(),
-        ];
-
-        if ($throwable instanceof VendimiaException) {
-            $payload['extra'] = $throwable->getExtra();
-        }
+        $payload = $this->getThrowableInformation($throwable);
 
         // Evitamos que haya \n
         $reason = explode("\n", $throwable->getMessage())[0];
