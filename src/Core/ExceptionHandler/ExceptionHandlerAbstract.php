@@ -9,7 +9,7 @@ abstract class ExceptionHandlerAbstract
     /**
      * Process and return method arguments from a trace
      */
-    protected function processTraceArgs($args, $separator = ', '): string
+    public static function processTraceArgs($args, $separator = ', '): string
     {
         // Si no es iterable, lo retornamos de vuelta
         if (!is_iterable($args)) {
@@ -38,6 +38,35 @@ abstract class ExceptionHandlerAbstract
         }
 
         return join($separator, $result);
+    }
+
+    /**
+     * Retrive a few lines of a source file
+     */
+    public static function readSourceLines($file, $line, $count = 8)
+    {
+        $lines = [];
+
+        $start = $line - intval($count / 2);
+        if ($start < 0) {
+            $count -= $start;
+            $start = 0;
+        }
+
+        $f = fopen($file, 'r');
+
+        for ($i = 0; $i < $start; $i++) {
+            fgets($f);
+        }
+
+        $i = 0;
+        while (($i < $count) && !feof($f)) {
+            $lines[$start + $i + 1] = htmlentities(fgets($f));
+            $i++;
+        }
+        fclose($f);
+
+        return $lines;
     }
 
     abstract public function handle(Throwable $throwable): never;
