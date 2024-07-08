@@ -24,7 +24,7 @@ class Config implements ArrayAccess
     /**
      * Creates a config object from an array
      */
-    public function __construct(array $from_array = null)
+    public function __construct(?array $from_array = null)
     {
         if ($from_array) {
             $this->config = $from_array;

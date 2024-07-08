@@ -11,7 +11,7 @@ class QueryParam extends AttributeParameterAbstract
 {
     public function __construct(
         private Request $request,
-        string $name = null,
+        ?string $name = null,
     )
     {
         if (!is_null($name)) {
