@@ -23,11 +23,16 @@ class MigrationManager
     /**
      * Obtains the last migration applied to the project
      */
-    private function getLastMigration()
+    private function getLastMigration(): int
     {
         // RAW
         try {
-            $result = $this->connector->execute('SELECT value FROM vendimia WHERE name="last_migration_serial"');
+            $query = $this->connector->prepare('SELECT {value:si} FROM {vendimia:si} WHERE {name:si}={last_migration_serial:s}',
+                value: 'value',
+                vendimia: 'vendimia',
+                name: 'name',
+            );
+            $result = $this->connector->execute($query);
 
             return $result->fetch()['value'] ?? 0;
         } catch (DatabaseException) {
@@ -54,7 +59,7 @@ class MigrationManager
         // Esto no debería fallar...
         $result = $this->connector->update('vendimia', [
             'value' => $serial
-        ], 'name="last_migration_serial"');
+        ], $this->connector->prepare('{name:si}={last_migration_serial:s}'));
 
     }
 
