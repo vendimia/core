@@ -49,7 +49,7 @@ class Routing implements MiddlewareInterface
             $rules = [];
             foreach ($route_manager->getRules() as $rule) {
                 $rules[] = [
-                    'methods' => join(',', $rule['methods']),
+                    'methods' => is_null($rule['methods']) ? 'ANY' : join(',', $rule['methods']),
                     'path' => $rule['path'],
                     'target' => is_array($rule['target']) ? join('::', $rule['target']) : '??',
                 ];
