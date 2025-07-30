@@ -1,7 +1,7 @@
 <?php
 namespace Vendimia\Core\AssetManager;
 
-1use Vendimia\Controller\WebController;
+use Vendimia\Controller\WebController;
 use Vendimia\Http\Response;
 use Vendimia\Exception\{VendimiaException, ResourceNotFoundException};
 use Vendimia\Routing\MethodRoute as Route;
