@@ -15,8 +15,8 @@
         "vendimia/madss": "*",
         "vendimia/logger": "*",
         "vendimia/http": "*",
-        "vendimia/clap": "^0.1.0",
-        "vendimia/helper": "^0.1.0"
+        "vendimia/clap": "*",
+        "vendimia/helper": "*"
     },
     "autoload": {
         "psr-4": {
