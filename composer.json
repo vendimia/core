@@ -13,10 +13,14 @@
         "psr/http-server-handler": "^1.0",
         "vendimia/object-manager": "*",
         "vendimia/madss": "*",
-        "vendimia/logger": "*"
+        "vendimia/logger": "*",
+        "vendimia/http": "*",
+        "vendimia/clap": "^0.1.0",
+        "vendimia/helper": "^0.1.0"
     },
     "autoload": {
         "psr-4": {
+            "Vendimia\\CommandLine\\": "src/CommandLine/",
             "Vendimia\\Controller\\": "src/Controller/",
             "Vendimia\\Core\\": "src/Core/",
             "Vendimia\\Exception\\": "src/Exception/",
