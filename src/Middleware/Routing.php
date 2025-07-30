@@ -5,7 +5,9 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use Vendimia\Http\Response;
+use Vendimia\Core\HttpErrorCodeRenderer;
+use Vendimia\Exception\UnmatchedRouteException;
+use Vendimia\Http\{Request, Response};
 use Vendimia\Routing\{Manager, Rule};
 use Vendimia\Core\ProjectInfo;
 use Vendimia\ObjectManager\ObjectManager;
@@ -27,7 +29,6 @@ class Routing implements MiddlewareInterface
 
         $resource_locator->setDefaultType('route');
         $resource_locator->setDefaultExt('php');
-
     }
 
     public function process(
@@ -46,32 +47,10 @@ class Routing implements MiddlewareInterface
         $route = $route_manager->match($request);
 
         if (is_null($route)) {
-            $rules = [];
-            foreach ($route_manager->getRules() as $rule) {
-                $rules[] = [
-                    'methods' => is_null($rule['methods']) ? 'ANY' : join(',', $rule['methods']),
-                    'path' => $rule['path'],
-                    'target' => is_array($rule['target']) ? join('::', $rule['target']) : '??',
-                ];
-            }
-            $target = $request->getMethod() . ' ' .  $request->getUri()->getPath();
-
-            // TODO: Es SUPER NECESARIO una mejor forma de manejar 404s
-            if (str_contains($request->getHeaderLine('accept'), 'application/json') ||
-                $request->getHeaderLine('content-type') == 'application/json') {
-                throw new ResourceNotFoundException('Resource not found: ' . $target,
-                    target: $target,
-                    rules: $rules,
-                    __HTTP_CODE: 404,
-                );
-            } else {
-                $this->object->new(View::class)->renderHttpStatus(404, [
-                    'target' => $target,
-                    'rules' => $rules,
-                ]);
-            }
-
-            exit;
+            $this->object->new(HttpErrorCodeRenderer::class,
+                request: $request,
+                route_manager: $route_manager
+            )->render404();
         }
 
         // Grabamos la ruta 'matched'
@@ -104,7 +83,15 @@ class Routing implements MiddlewareInterface
                 $this->object->callMethod($controller, 'initialize');
             }
 
-            $response = $controller->execute($route->target[1], ...$route->args);
+            // Una ruta aun puede generar un UnmatchedRouteException
+            try {
+                $response = $controller->execute($route->target[1], ...$route->args);
+            } catch (UnmatchedRouteException $e) {
+                $this->object->new(HttpErrorCodeRenderer::class,
+                    request: $request,
+                    route_manager: $route_manager
+                )->render404();
+            }
 
         } elseif ($route->target_type == Rule::TARGET_CALLABLE) {
             $response = $this->object->call($route->target);
