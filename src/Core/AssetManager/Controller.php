@@ -1,9 +1,9 @@
 <?php
 namespace Vendimia\Core\AssetManager;
 
-use Vendimia\Controller\WebController;
+1use Vendimia\Controller\WebController;
 use Vendimia\Http\Response;
-use Vendimia\Exception\ResourceNotFoundException;
+use Vendimia\Exception\{VendimiaException, ResourceNotFoundException};
 use Vendimia\Routing\MethodRoute as Route;
 
 use InvalidArgumentException;
@@ -51,6 +51,11 @@ class Controller extends WebController
     #[Route\Get('js/{*code}')]
     public function js($code, Model\Js $js_model)
     {
+        if (!str_contains($code, ':')) {
+            throw new ResourceNotFoundException("JS resource code malformed", extra: [
+                "code" => $code,
+            ]);
+        }
         [$module, $sources] = explode(':', $code, 2);
         $sources = explode(',', $sources);
 
