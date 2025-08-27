@@ -36,7 +36,7 @@ class Routing implements MiddlewareInterface
         RequestHandlerInterface $handler
     ): ResponseInterface
     {
-        $route_source = $request->getAttribute('route-source', 'main');
+        $route_source = $request->getAttribute('route-source', 'web');
         $route_file = "routes/{$route_source}.php";
 
         $routing_rules = require $route_file;

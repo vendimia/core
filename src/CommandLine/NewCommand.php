@@ -15,6 +15,14 @@ use const Vendimia\PROJECT_PATH;
  */
 class NewCommand
 {
+    private static function validatePHPLabel($label)
+    {
+        if (preg_match('/^[a-zA-Z_\x80-\xff][a-zA-Z0-9_\x80-\xff]*$/', $label)){
+            return true;
+        }
+        return false;
+    }
+
     /*
      * Adds a new module to the projectt
      */
@@ -30,7 +38,7 @@ class NewCommand
         $name = mb_convert_case(trim($name), MB_CASE_TITLE);
 
         // El nombre debe ser una etiqueta PHP válida
-        if (!preg_match('/^[a-zA-Z_\x80-\xff][a-zA-Z0-9_\x80-\xff]*$/', $name)){
+        if (!self::validatePHPLabel($name)){
             throw new InvalidArgumentException('Module name must be a valid PHP class name');
         }
 
@@ -41,15 +49,17 @@ class NewCommand
                 'Controller',
                 'Model',
                 'Form',
-                'Database',
+                'Database' => [
+                    'migrations'
+                ],
                 'resources' => [
-                    'views',
-                    'assets' => [
-                        'css',
-                        'js',
-                        'imgs',
+                    'css',
+                    'js',
+                    'views' => [
+                        'layouts',
                     ]
-                ]
+                ],
+                'routes',
             ],
         ];
         FileSystem::createDirectoryTree($directory_tree);
@@ -73,6 +83,8 @@ class NewCommand
             use Vendimia\\View\\View;
             use Vendimia\\Session\\SessionManager;
 
+            use {$name}\\{Database, Model, Form};
+
             class DefaultController extends WebController
             {
                 /**
@@ -81,7 +93,7 @@ class NewCommand
                  * It will render a 'default' view file.
                  */
                 #[Route\Get]
-                public function default(): ?array
+                public function default()
                 {
                 }
             }
@@ -101,7 +113,7 @@ class NewCommand
         }
 
         // Ahora lo añadimos al fichero de rutas por defecto
-        $route_file = PROJECT_PATH . '/routes/main.php';
+        $route_file = PROJECT_PATH . '/routes/web.php';
         $source = trim(file_get_contents($route_file));
 
         // Sólo añadimos si la última línea es un '];'
@@ -133,11 +145,81 @@ class NewCommand
             // Ahora si, añadimos la nueva ruta
             $lines[] = "";
             $lines[] = "    // Route for DefaultController class of {$name} module";
-            $lines[] = "    Rule::path('{$route_name}')->includeFromClass({$name}\Controller\DefaultController::class),";
+            $lines[] = "    Rule::path('{$route_name}')->include('{$name}:routes/web'),";
             $lines[] = "];";
 
             $logger->notice("UPDATE {$route_file}");
             file_put_contents($route_file, implode("\n", $lines));
+        }
+
+        // Creamos un fichero de rutas
+        $module_route_file = $base_path . '/routes/web.php';
+        if (file_exists($module_route_file)) {
+            $logger->notice("IGNORE " . $module_route_file);
+        } else {
+            $logger->notice("WRITE " . $module_route_file);
+            file_put_contents($module_route_file, <<<EOF
+            <?php
+
+            use Vendimia\Routing\Rule;
+
+            use {$name}\Controller;
+
+            return [
+                Rule::any()->includeFromClass(Controller\DefaultController::class),
+            ];
+            EOF);
+        }
+    }
+
+    /*
+     * Adds a new database to a module
+     */
+    public static function database(string $module, string $name)
+    {
+        $logger = ObjectManager::retrieve()->get(Logger::class);
+
+        // El nombre del módulo debe empezar en mayúscula
+        $module = mb_convert_case(trim($module), MB_CASE_TITLE);
+
+        $module_path = PROJECT_PATH . '/modules/' . $module;
+
+        // Si el módulo no existe, fallamos.
+        if (!is_dir($module_path)) {
+            throw new InvalidArgumentException("Module {$module} does not exist");
+        }
+
+        // El nombre de la base de datos debe empezar en mayúscula
+        $name = mb_convert_case(trim($name), MB_CASE_TITLE);
+
+        // El nombre debe ser una etiqueta PHP válida
+        if (!self::validatePHPLabel($name)){
+            throw new InvalidArgumentException('Database name must be a valid PHP class name');
+        }
+
+        $content = <<<EOF
+        <?php
+
+        namespace {$module}\Database;
+
+        use Vendimia\Database\{Entity, Field};
+
+        /**
+         * Definition of {$name} database entity
+         */
+        class {$name} extends Entity
+        {
+
+        }
+        EOF;
+
+        $target_file = $module_path . "/Database/{$name}.php";
+
+        if (file_exists($target_file)) {
+            $logger->notice('IGNORE ' . $target_file);
+        } else {
+            $logger->info('WRITE ' . $target_file);
+            file_put_contents($target_file, $content);
         }
     }
 }
