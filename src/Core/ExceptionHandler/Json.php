@@ -2,11 +2,11 @@
 
 namespace Vendimia\Core\ExceptionHandler;
 
-use Throwable;
-use ReflectionClass;
 use Vendimia\Exception\VendimiaException;
-use Vendimia\ObjectManager\ObjectManager;
+use Vendimia\Database\DatabaseException;
 use Vendimia\Http\Response;
+
+use Throwable;
 
 use const Vendimia\DEBUG;
 
@@ -30,8 +30,10 @@ class Json extends ExceptionHandlerAbstract
             'traceback' => $throwable->getTrace(),
         ];
 
-        if ($throwable instanceof VendimiaException) {
-            $payload['extra'] = $throwable->getExtra();
+        if ($throwable instanceof VendimiaException ||
+            $throwable instanceof DatabaseException) {
+
+            $info['extra'] = $throwable->getExtra();
         }
 
         // Si hay un previous, lo añadimos
@@ -47,6 +49,8 @@ class Json extends ExceptionHandlerAbstract
      */
     public function handle(Throwable $throwable): never
     {
+        $payload = $this->getThrowableInformation($throwable);
+
         $http_code = 500;
         if ($throwable instanceof VendimiaException) {
             $http_code = $payload['extra']['__HTTP_CODE'] ?? 500;
@@ -58,10 +62,6 @@ class Json extends ExceptionHandlerAbstract
                 ->send();
             exit;
         }
-
-        $object = ObjectManager::retrieve();
-
-        $payload = $this->getThrowableInformation($throwable);
 
         // Evitamos que haya \n
         $reason = explode("\n", $throwable->getMessage())[0];
