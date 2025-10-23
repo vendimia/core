@@ -37,7 +37,7 @@ class Cli extends ExceptionHandlerAbstract
         $console->write("[|white {$throwable_class}|]: {$throwable->getMessage()}");
         $console->write("on [|cyan {$file}|]:{$throwable->getLine()}");
 
-        exit;
+        exit(1);
     }
 
 }
