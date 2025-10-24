@@ -40,8 +40,9 @@ class Js
 
             if (is_null($file_path)) {
                 throw new ResourceNotFoundException(
-                    "JavaScript source '{$source}' not found",
-                    searched_paths: $this->resource_locator->getLastSearchedPaths(),
+                    "JavaScript source '{$source}' not found", extra: [
+                        "searched_paths" => $this->resource_locator->getLastSearchedPaths(),
+                    ]
                 );
             }
 

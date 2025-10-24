@@ -3,7 +3,7 @@ namespace Vendimia\Core\AssetManager;
 
 use Vendimia\Controller\WebController;
 use Vendimia\Http\Response;
-use Vendimia\Exception\{VendimiaException, ResourceNotFoundException};
+use Vendimia\Exception\ResourceNotFoundException;
 use Vendimia\Routing\MethodRoute as Route;
 
 use InvalidArgumentException;
@@ -35,7 +35,7 @@ class Controller extends WebController
             if (DEBUG) {
                 throw new ResourceNotFoundException(
                     $e->getMessage(),
-                    [
+                    extra: [
                         'Paths' => $model->getResourceLocator()->getLastSearchedPaths(),
                     ]
                 );
