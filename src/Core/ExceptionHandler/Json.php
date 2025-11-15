@@ -58,15 +58,16 @@ class Json extends ExceptionHandlerAbstract
 
         // Si no estamos en debug, simplemente enviamos el código vacío
         if (!DEBUG) {
-            Response::Json([], code: $http_code)
+            (new Response())
+                ->withStatus($http_code)
                 ->send();
             exit;
         }
 
-        // Evitamos que haya \n
+        // Si hay múltiples líneas, solo enviamos la primera.
         $reason = explode("\n", $throwable->getMessage())[0];
 
-        Response::Json($payload, code: $http_code, reason: $reason)
+        Response::json(...$payload)->withStatus($http_code, $reason)
             ->send();
         exit;
     }
