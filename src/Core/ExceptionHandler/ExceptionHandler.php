@@ -33,9 +33,16 @@ class ExceptionHandler
 
     public function __invoke(Throwable $throwable)
     {
-        $this->logger?->alert($throwable->getMessage(), [
-            "exception" => $throwable
-        ]);
+        // Si el logger falla, usamos error_log como última oportunidad
+        try {
+            $this->logger?->critical($throwable->getMessage(), [
+                "exception" => $throwable
+            ]);
+        } catch (Throwable $e) {
+            error_log('[vendimia] Exception handler logger failed: ' . $e->getMessage());
+            error_log('[vendimia] Original exception: ' . $throwable->getMessage());
+        }
+
         $this->handler->handle($throwable);
     }
 }
